@@ -1,20 +1,9 @@
-doctype html
-html(lang="en")
-    head
-        meta(charset="UTF-8")
-        meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title #{docTitle}
-        link(rel="stylesheet", href="/css/main.css")
-        link(rel="stylesheet", href="/css/product.css")
-    body 
-        header.main 
-            nav.headnav
-                ul.list
-                    li.listitem 
-                        a.active(href="") Shop
-                    li.listitem
-                        a(href="/admin/add-product") Add product 
-        main
+extends layout/mainlayout.pug 
+block styles
+    link(rel="stylesheet",href="/css/product.css")
+    
+block content 
+    main
         if prods.length>0
             .grid
             each product in prods

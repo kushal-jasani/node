@@ -2,14 +2,17 @@ const express = require("express");
 const path = require("path");
 const root = require("../util/path");
 
-const productsController = require("../controller/product");
+const adminController = require("../controller/admin");
 const router = express.Router();
 
-router.get("/add-product", productsController.getAddProduct);
+router.get("/add-product", adminController.getAddProduct);
 
-router.post("/add-product", productsController.postAddProduct);
+router.post("/add-product", adminController.postAddProduct);
 
+router.get("/products", adminController.getProducts);
+
+router.get("/edit-product/:productid",adminController.getEditProduct);
 // exports.routes = router;
 // exports.products = products;
 
-module.exports=router; 
+module.exports = router;

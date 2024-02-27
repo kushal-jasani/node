@@ -2,4 +2,20 @@
     </head>
     <body>
         <%- include('../includes/navigation.ejs')%>
+        <main>
+            <!-- <h1><%console.log(products)%></h1> -->
+            <% if(products.length>0) { %>
+                <ul>
+                    <%products.forEach(p => { %>
+                        <li>
+                            <p>
+                                <%= p.productdata.title %> (<%= p.qty %>)
+                            </p>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <h1>no products in cart</h1>
+            <% } %>
+        </main>
         <%- include('../includes/end.ejs')%>

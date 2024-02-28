@@ -10,8 +10,12 @@ body {
 .centered {
   text-align: center;
 }
-img {
-  width: 100%;
+
+.image {
+  height: 20rem;
+}
+.image img{
+  height: 100%;
 }
 
 main {

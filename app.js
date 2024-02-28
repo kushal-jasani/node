@@ -4,9 +4,13 @@ const express = require("express");
 
 const path = require("path");
 const bodyparser = require("body-parser");
+
 // const expressHbs = require("express-handlebars");
 
 const app = express();
+
+const errorController = require("./controller/error");
+const db = require("./util/database");
 
 // app.engine(
 //   'hbs',
@@ -21,7 +25,8 @@ app.set("views", "views");
 
 const adminroute = require("./routes/admin");
 const shoproute = require("./routes/shop");
-const errorController = require("./controller/error");
+const { log } = require("console");
+
 
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));

@@ -1,3 +1,4 @@
+const product = require("../models/product");
 const Product = require("../models/product");
 const mongodb = require("mongodb");
 const objid = mongodb.ObjectId;
@@ -16,14 +17,14 @@ exports.postAddProduct = (req, res, next) => {
   const imageurl = req.body.imageurl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageurl,
-    null,
-    req.user._id
-  );
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageurl: imageurl,
+    userId: req.user,
+  });
+
   product
     .save()
     .then((result) => {
@@ -64,16 +65,14 @@ exports.postEditProduct = (req, res, next) => {
   const updatedurl = req.body.imageurl;
   const updatedprice = req.body.price;
   const updateddesc = req.body.description;
-  const product = new Product(
-    updatedtitle,
-    updatedprice,
-    updateddesc,
-    updatedurl,
-    prodId,
-    req.user._id
-  );
-  product
-    .save()
+  Product.findById(prodId)
+    .then((product) => {
+      product.title = updatedtitle;
+      product.price = updatedprice;
+      product.imageurl = updatedurl;
+      product.description = updateddesc;
+      return product.save();
+    })
     .then((result) => {
       console.log("updated product");
       res.redirect("/admin/products");
@@ -85,7 +84,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodid = req.body.productid;
-  Product.deleteById(prodid)
+  Product.findByIdAndDelete(prodid)
     .then(() => {
       console.log("DESTROYED");
       res.redirect("/admin/products");
@@ -96,8 +95,11 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+    // .select("title price -_id")
+    // .populate("userId",'name')
     .then((products) => {
+      console.log(products);
       res.render("admin/products", {
         prods: products,
         pagetitle: "admin products",

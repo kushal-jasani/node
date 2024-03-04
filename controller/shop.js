@@ -6,7 +6,7 @@ const { checkout } = require("../routes/admin");
 exports.getProducts = (req, res, next) => {
   //   console.log(adminData.products);
   //   res.sendFile(path.join(root, "views", "shop.html"));
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
@@ -34,7 +34,7 @@ exports.getProduct = (req, res, next) => {
     });
 };
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/index", {
         prods: products,
@@ -51,8 +51,9 @@ exports.getCart = (req, res, next) => {
   // Cart.getCart(cart => {
   // console.log(req.user.cart);
   req.user
-    .getCart()
-    .then((products) => {
+    .populate("cart.items.productId")
+    .then((user) => {
+      const products = user.cart.items;
       res.render("shop/cart", {
         path: "/cart",
         pagetitle: "Your Cart",
@@ -79,7 +80,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodid = req.body.productId;
   req.user
-    .deleteItemFromCart(prodid)
+    .removeFromCart(prodid)
     .then((result) => {
       res.redirect("/cart");
     })

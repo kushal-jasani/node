@@ -20,6 +20,7 @@
     "express-hbs": "^2.5.0",
     "hbs": "^4.2.0",
     "mongodb": "^6.3.0",
+    "mongoose": "^8.2.0",
     "mysql2": "^3.9.2",
     "pug": "^3.0.2",
     "sequelize": "^6.37.1"

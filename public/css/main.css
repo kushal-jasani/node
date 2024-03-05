@@ -14,7 +14,8 @@ body {
 .image {
   height: 20rem;
 }
-.image img{
+
+.image img {
   height: 100%;
 }
 
@@ -38,8 +39,10 @@ main {
 
 .headnav {
   height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .list {

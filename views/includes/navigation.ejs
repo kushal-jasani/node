@@ -5,17 +5,18 @@
         <a class="<%= path ==='/'? 'active':'' %>" href="/">Shop</a>
       </li>
       <li class="listitem">
-        <a
-          class="<%= path ==='/products'? 'active':''%>"
-          href="/products"
+        <a class="<%= path ==='/products'? 'active':''%>" href="/products"
           >Products</a
         >
       </li>
+      <%if(isAuthenticated){%>
       <li class="listitem">
-        <a class="<%= path ==='/cart'? 'active':''%>"href="/cart">Cart</a>
+        <a class="<%= path ==='/cart'? 'active':''%>" href="/cart">Cart</a>
       </li>
       <li class="listitem">
-        <a class="<%= path ==='/orders'? 'active':''%>"href="/orders">Orders</a>
+        <a class="<%= path ==='/orders'? 'active':''%>" href="/orders"
+          >Orders</a
+        >
       </li>
       <li class="listitem">
         <a
@@ -25,8 +26,26 @@
         >
       </li>
       <li class="listitem">
-        <a class="<%= path ==='/admin/products'? 'active':''%>"href="/admin/products">Admin Product</a>
+        <a
+          class="<%= path ==='/admin/products'? 'active':''%>"
+          href="/admin/products"
+          >Admin Product</a
+        >
       </li>
+      <%}%>
+    </ul>
+    <ul class="list">
+      <%if(!isAuthenticated){%>
+      <li class="listitem">
+        <a class="<%= path==='/login'?'active':''%>" href="/login">login</a>
+      </li>
+      <% } else { %>
+      <li class="listitem">
+        <form action="/logout" method="post">
+          <button type="submit" class="btn">log-out</button>
+        </form>
+      </li>
+      <% } %>
     </ul>
   </nav>
 </header>

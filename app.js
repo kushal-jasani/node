@@ -7,6 +7,9 @@ const path = require("path");
 const bodyparser = require("body-parser");
 
 const MongoDBStore = require("connect-mongodb-session")(session);
+
+const csrf = require("csurf");
+const flash = require("connect-flash");
 const MONGODBURI =
   "mongodb+srv://kush:5XCZW5ADqHZDu6Ay@cluster0.1qgxj1a.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -17,6 +20,8 @@ const store = new MongoDBStore({
   uri: MONGODBURI,
   collection: "sessions",
 });
+
+const csrfprotection = csrf();
 const errorController = require("./controller/error");
 const User = require("./models/user");
 
@@ -45,7 +50,8 @@ app.use(
     store: store,
   })
 );
-
+app.use(csrfprotection);
+app.use(flash());
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
@@ -60,6 +66,12 @@ app.use((req, res, next) => {
     });
 });
 
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedin;
+  res.locals.csrftoken = req.csrfToken();
+  next();
+});
+
 app.use("/admin", adminroute);
 
 app.use(shoproute);
@@ -71,18 +83,6 @@ app.use(errorController.getNotFound);
 mongoose
   .connect(MONGODBURI)
   .then((result) => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "kush",
-          email: "kush@gmail.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
     app.listen(3000);
   })
   .catch((err) => console.log(err));

@@ -4,10 +4,12 @@ const mongodb = require("mongodb");
 const objid = mongodb.ObjectId;
 
 exports.getAddProduct = (req, res, next) => {
+  if (!req.session.isLoggedin) {
+    return res.redirect('/login');
+  }
   res.render("admin/edit-product", {
     pagetitle: "add-Product",
     path: "/admin/add-product",
-    isAuthenticated: req.session.isLoggedin,
     editing: false,
   });
 };
@@ -54,7 +56,6 @@ exports.getEditProduct = (req, res, next) => {
         pagetitle: "Edit-Product",
         path: "/admin/edit-product",
         editing: editmode,
-        isAuthenticated: req.session.isLoggedin,
         product: product,
       });
     })
@@ -106,7 +107,6 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pagetitle: "admin products",
         path: "/admin/products",
-        isAuthenticated: req.session.isLoggedin,
       });
     })
     .catch((err) => {

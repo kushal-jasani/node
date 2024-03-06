@@ -8,10 +8,10 @@
 <%- include('../includes/navigation.ejs') %>
 
 <main>
-    <% if(errorMsg){ %>
-        <div class="user-message user-message--error"><%=errorMsg%></div>
-    <% } %>
-    <form class="login-form" action="/login" method="POST">
+    <%if(errorMsg){%>
+    <div class="user-message user-message--error"><%=errorMsg%></div>
+    <%}%>
+    <form class="login-form" action="/signup" method="POST">
         <div class="form-control">
             <label for="email">e-mail</label>
             <input type="email" name="email" id="email">
@@ -20,12 +20,12 @@
             <label for="password">Password</label>
             <input type="password" name="password" id="password" >
         </div>
+        <div class="form-control"> 
+            <label for="confirmpassword">Confirm Password</label>
+            <input type="password" name="confirmpassword" id="confirmpassword" >
+        </div>
         <input type="hidden" name="_csrf" value="<%=csrftoken%>">
-
-        <button class="btn" type="submit">Login</button>
+        <button class="btn" type="submit">Sign up</button>
     </form>
-    <div class="centered">
-        <a href="/reset">reset password</a>
-    </div>
 </main>
 <%- include('../includes/end.ejs') %>

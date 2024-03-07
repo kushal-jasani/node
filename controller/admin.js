@@ -5,7 +5,7 @@ const objid = mongodb.ObjectId;
 
 exports.getAddProduct = (req, res, next) => {
   if (!req.session.isLoggedin) {
-    return res.redirect('/login');
+    return res.redirect("/login");
   }
   res.render("admin/edit-product", {
     pagetitle: "add-Product",
@@ -70,15 +70,17 @@ exports.postEditProduct = (req, res, next) => {
   const updateddesc = req.body.description;
   Product.findById(prodId)
     .then((product) => {
+      if (product.userId.toString() !== req.user._id.toString()) {
+        return res.redirect("/");
+      }
       product.title = updatedtitle;
       product.price = updatedprice;
       product.imageurl = updatedurl;
       product.description = updateddesc;
-      return product.save();
-    })
-    .then((result) => {
-      console.log("updated product");
-      res.redirect("/admin/products");
+      return product.save().then((result) => {
+        console.log("updated  product");
+        res.redirect("/admin/products");
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -98,7 +100,7 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
+  Product.find({ userId: req.user._id })
     // .select("title price -_id")
     // .populate("userId",'name')
     .then((products) => {

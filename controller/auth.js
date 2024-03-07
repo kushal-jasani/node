@@ -1,13 +1,15 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
+const user = require("../models/user");
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
     auth: {
       api_key:
-        "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",
+        "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",
     },
   })
 );
@@ -134,7 +136,7 @@ exports.getReset = (req, res, next) => {
   });
 };
 
-exports.postReset = (res, req, next) => {
+exports.postReset = (req, res, next) => {
   crypto.randomBytes(32, (err, buf) => {
     if (err) {
       console.log(err);
@@ -165,4 +167,53 @@ exports.postReset = (res, req, next) => {
         console.log(err);
       });
   });
+};
+
+exports.getNewPassword = (req, res, next) => {
+  const token = req.params.token;
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+    .then((user) => {
+      let message = req.flash("error");
+      if (message.length > 0) {
+        message = message[0];
+      } else {
+        message = null;
+      }
+      res.render("auth/new-password", {
+        path: "auth/new-password",
+        pagetitle: "New Password",
+        errorMsg: message,
+        userId: user._id.toString(),
+        passwordToken: token,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+exports.postNewPassword = (req, res, next) => {
+  const newpassword = req.body.password;
+  const userId = req.body.userId;
+  const passwordToken = req.body.passwordToken;
+  let resetuser;
+  User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId,
+  })
+    .then((user) => {
+      resetuser = user;
+      return bcrypt.hash(newpassword, 12);
+    })
+    .then((hashedPassword) => {
+      resetuser.password = hashedPassword;
+      resetuser.resetToken = undefined;
+      resetuser.resetTokenExpiration = undefined;
+      return resetuser.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
+    })
+    .catch();
 };

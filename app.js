@@ -53,32 +53,46 @@ app.use(
 app.use(csrfprotection);
 app.use(flash());
 app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedin;
+  res.locals.csrftoken = req.csrfToken();
+  next();
+});
+
+app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
     .then((user) => {
+      if (!user) {
+        return next();
+      }
       req.user = user;
       next();
     })
     .catch((err) => {
-      console.log(err);
+      next(new Error(err)); 
     });
 });
 
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.isLoggedin;
-  res.locals.csrftoken = req.csrfToken();
-  next();
-});
+
 
 app.use("/admin", adminroute);
 
 app.use(shoproute);
 
 app.use(authroute);
+app.get("/500", errorController.get500);
 
 app.use(errorController.getNotFound);
+
+app.use((error, req, res, next) => {
+  res.status(500).render("500", {
+    pagetitle: "Error!!",
+    path: "/500",
+    isAutheticated: req.session.isLoggedin,
+  });
+});
 
 mongoose
   .connect(MONGODBURI)

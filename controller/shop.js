@@ -6,25 +6,45 @@ const order = require("../models/order");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
+
+const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   //   console.log(adminData.products);
   //   res.sendFile(path.join(root, "views", "shop.html"));
+  Product.find();
+  const page = +req.query.page || 1;
+  let totalItems;
   Product.find()
+    .countDocuments()
+    .then((numProd) => {
+      totalItems = numProd;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
-        pagetitle: "shop",
-        path: "/",
-        isAuthenticated: req.session.isLoggedin,
+        pagetitle: "Products",
+        path: "/products",
+        currPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPrevPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
 exports.getProduct = (req, res, next) => {
   const proId = req.params.productid;
+
   Product.findById(proId)
     .then((product) => {
       res.render("shop/product-detail", {
@@ -35,20 +55,39 @@ exports.getProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 exports.getIndex = (req, res, next) => {
+  const page = +req.query.page || 1;
+  let totalItems;
   Product.find()
+    .countDocuments()
+    .then((numProd) => {
+      totalItems = numProd;
+      return Product.find()
+        .skip((page - 1) * ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE);
+    })
     .then((products) => {
       res.render("shop/index", {
         prods: products,
         pagetitle: "shop",
         path: "/",
+        currPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPrevPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -161,15 +200,15 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.pipe(res);
       pdfDoc.fontSize(26).text("Invoice : Node-Shop", { underline: true });
       pdfDoc.text("________________________________");
-      let total=0;
-      order.products.forEach(prod=>{
-        total += prod.quantity*prod.product.price;
-        pdfDoc.text('Title:'+prod.product.title);
-        pdfDoc.text('Quantity:'+prod.quantity);
-        pdfDoc.text('Price:$'+prod.product.price);
-        pdfDoc.text('_______________________________');
+      let total = 0;
+      order.products.forEach((prod) => {
+        total += prod.quantity * prod.product.price;
+        pdfDoc.text("Title:" + prod.product.title);
+        pdfDoc.text("Quantity:" + prod.quantity);
+        pdfDoc.text("Price:$" + prod.product.price);
+        pdfDoc.text("_______________________________");
       });
-      pdfDoc.fontSize(20).text("Total:$"+total);
+      pdfDoc.fontSize(20).text("Total:$" + total);
       pdfDoc.end();
       // fs.readFile(invoicePath, (err, data) => {
       //   if (err) {

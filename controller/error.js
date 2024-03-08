@@ -4,7 +4,7 @@ exports.getNotFound = (req, res, next) => {
     .render("404", {
       pagetitle: "not found",
       path: "/404",
-      isAutheticated: req.isLoggedin,
+      isAuthenticated: req.session.isLoggedin,
     });
 };
 exports.get500 = (req, res, next) => {
@@ -13,6 +13,6 @@ exports.get500 = (req, res, next) => {
     .render("500", {
       pagetitle: "Error!!",
       path: "/500",
-      isAutheticated: req.session.isLoggedin,
+      isAuthenticated: req.session.isLoggedin,
     });
 };

@@ -4,6 +4,7 @@ const mongodb = require("mongodb");
 const mongoose = require("mongoose");
 const objid = mongodb.ObjectId;
 const { validationResult } = require("express-validator");
+const fileHelper=require('../util/file')
 
 exports.getAddProduct = (req, res, next) => {
   if (!req.session.isLoggedin) {
@@ -22,10 +23,26 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   //products.push({ title: req.body.title });
   const title = req.body.title;
-  const imageurl = req.body.imageurl;
+  const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
   const errors = validationResult(req);
+  console.log(image);
+  if (!image) {
+    return res.status(422).render("admin/edit-product", {
+      pagetitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      hasError: true,
+      product: {
+        title: title,
+        price: price,
+        description: description,
+      },
+      errorMsg: "attached file is not an image",
+      validationErrors: [],
+    });
+  }
   if (!errors.isEmpty()) {
     return res.status(422).render("admin/edit-product", {
       pagetitle: "Add Product",
@@ -42,6 +59,7 @@ exports.postAddProduct = (req, res, next) => {
       validationErrors: errors.array(),
     });
   }
+  const imageurl = image.path;
   const product = new Product({
     // _id: new mongoose.Types.ObjectId("65e960d8f48e2ecff5f34c0a"),
     title: title,
@@ -113,7 +131,7 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productid;
   const updatedtitle = req.body.title;
-  const updatedurl = req.body.imageurl;
+  const image = req.file;
   const updatedprice = req.body.price;
   const updateddesc = req.body.description;
   const errors = validationResult(req);
@@ -141,8 +159,11 @@ exports.postEditProduct = (req, res, next) => {
       }
       product.title = updatedtitle;
       product.price = updatedprice;
-      product.imageurl = updatedurl;
       product.description = updateddesc;
+      if (image) {
+        fileHelper.deleteFile(product.imageurl);
+        product.imageurl = image.path;
+      }
       return product.save().then((result) => {
         console.log("updated product");
         res.redirect("/admin/products");
@@ -157,7 +178,14 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodid = req.body.productid;
-  Product.findByIdAndDelete(prodid)
+  Product.findById(prodid)
+    .then((product) => {
+      if (!product) {
+        return next(new Error("Product not found"));
+      }
+      fileHelper.deleteFile(product.imageurl);
+      return Product.deleteOne({ _id: prodid,userId:req.user._id});
+    })
     .then(() => {
       console.log("DESTROYED");
       res.redirect("/admin/products");

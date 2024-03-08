@@ -10,6 +10,7 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const multer = require("multer");
 const MONGODBURI =
   "mongodb+srv://kush:5XCZW5ADqHZDu6Ay@cluster0.1qgxj1a.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -36,12 +37,35 @@ const User = require("./models/user");
 app.set("view engine", "ejs");
 app.set("views", "views");
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 const adminroute = require("./routes/admin");
 const shoproute = require("./routes/shop");
 const authroute = require("./routes/auth");
 
 app.use(bodyparser.urlencoded({ extended: false }));
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single("image"));
+// app.use(multer({ dest: "images" })).single('image');
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
     secret: "secsec",
@@ -71,11 +95,9 @@ app.use((req, res, next) => {
       next();
     })
     .catch((err) => {
-      next(new Error(err)); 
+      next(new Error(err));
     });
 });
-
-
 
 app.use("/admin", adminroute);
 
@@ -90,7 +112,7 @@ app.use((error, req, res, next) => {
   res.status(500).render("500", {
     pagetitle: "Error!!",
     path: "/500",
-    isAutheticated: req.session.isLoggedin,
+    isAuthenticated: req.session.isLoggedin,
   });
 });
 

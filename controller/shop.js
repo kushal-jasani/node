@@ -7,6 +7,10 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 const product = require("../models/product");
+const session = require("express-session");
+const stripe = require("stripe")(
+  "secretkey"
+);
 
 const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
@@ -37,9 +41,7 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      console.log(err);
     });
 };
 
@@ -56,9 +58,7 @@ exports.getProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      console.log(err);
     });
 };
 exports.getIndex = (req, res, next) => {
@@ -86,9 +86,7 @@ exports.getIndex = (req, res, next) => {
       });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      console.log(err);
     });
 };
 
@@ -118,8 +116,11 @@ exports.postCart = (req, res, next) => {
       return req.user.addToCart(product);
     })
     .then((result) => {
-      console.log(result);
+      // console.log(result);
       res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
 
@@ -129,6 +130,33 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .removeFromCart(prodid)
     .then((result) => {
       res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+exports.getCheckOutSuccess = (req, res, next) => {
+  req.user
+    .populate("cart.items.productId")
+    .then((user) => {
+      const products = user.cart.items.map((i) => {
+        return { quantity: i.quantity, product: { ...i.productId._doc } };
+      });
+      const order = new Order({
+        user: {
+          email: req.user.email,
+          userId: req.user,
+        },
+        products: products,
+      });
+      return order.save();
+    })
+    .then((result) => {
+      return req.user.clearCart();
+    })
+    .then(() => {
+      res.redirect("/orders");
     })
     .catch((err) => {
       console.log(err);
@@ -157,9 +185,56 @@ exports.postOrder = (req, res, next) => {
     .then(() => {
       res.redirect("/orders");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
+exports.getCheckOut = (req, res, next) => {
+  let products;
+  let total = 0;
+  req.user
+    .populate("cart.items.productId")
+    .then((user) => {
+      products = user.cart.items;
+      products.forEach((p) => {
+        total += p.quantity * p.productId.price;
+      });
+
+      return stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: products.map((p) => {
+          return {
+            price_data: {
+              currency: "usd",
+              unit_amount: p.productId.price * 100,
+              product_data: {
+                name: p.productId.title,
+                description: p.productId.description,
+              },
+            },
+            quantity: p.quantity,
+          };
+        }),
+        mode:'payment',
+        success_url:
+          req.protocol + "://" + req.get("host") + "/checkout/success",
+        cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",
+      });
+    })
+    .then((session) => {
+      res.render("shop/checkout", {
+        path: "/checkout",
+        pagetitle: "Checkout",
+        products: products,
+        totalSum: total,
+        sessionId: session.id,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
 exports.getOrders = (req, res, next) => {
   Order.find({ "user.userId": req.user._id })
@@ -170,7 +245,11 @@ exports.getOrders = (req, res, next) => {
         orders: orders,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getInvoice = (req, res, next) => {
@@ -221,5 +300,9 @@ exports.getInvoice = (req, res, next) => {
 
       // file.pipe(res);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

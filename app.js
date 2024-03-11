@@ -108,13 +108,13 @@ app.get("/500", errorController.get500);
 
 app.use(errorController.getNotFound);
 
-app.use((error, req, res, next) => {
-  res.status(500).render("500", {
-    pagetitle: "Error!!",
-    path: "/500",
-    isAuthenticated: req.session.isLoggedin,
-  });
-});
+// app.use((error, req, res, next) => {
+//   res.status(500).render("500", {
+//     pagetitle: "Error!!",
+//     path: "/500",
+//     isAuthenticated: req.session.isLoggedin,
+//   });
+// });
 
 mongoose
   .connect(MONGODBURI)

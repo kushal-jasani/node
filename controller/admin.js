@@ -4,7 +4,7 @@ const mongodb = require("mongodb");
 const mongoose = require("mongoose");
 const objid = mongodb.ObjectId;
 const { validationResult } = require("express-validator");
-const fileHelper=require('../util/file')
+const fileHelper = require("../util/file");
 
 exports.getAddProduct = (req, res, next) => {
   if (!req.session.isLoggedin) {
@@ -176,24 +176,22 @@ exports.postEditProduct = (req, res, next) => {
     });
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodid = req.body.productid;
+exports.deleteProduct = (req, res, next) => {
+  const prodid = req.params.productid;
   Product.findById(prodid)
     .then((product) => {
       if (!product) {
         return next(new Error("Product not found"));
       }
       fileHelper.deleteFile(product.imageurl);
-      return Product.deleteOne({ _id: prodid,userId:req.user._id});
+      return Product.deleteOne({ _id: prodid, userId: req.user._id });
     })
     .then(() => {
       console.log("DESTROYED");
-      res.redirect("/admin/products");
+      res.status(200).json({ message: "Success! " });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      res.status(500).json({message:'deleting failed!'});
     });
 };
 

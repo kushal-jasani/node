@@ -6,6 +6,7 @@ const order = require("../models/order");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
+const product = require("../models/product");
 
 const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
@@ -159,12 +160,6 @@ exports.postOrder = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-exports.getCheckOut = () => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    pagetitle: "Checkout",
-  });
-};
 
 exports.getOrders = (req, res, next) => {
   Order.find({ "user.userId": req.user._id })

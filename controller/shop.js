@@ -30,14 +30,9 @@ exports.getProducts = (req, res, next) => {
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
-        pagetitle: "Products",
-        path: "/products",
-        currPage: page,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-        hasPrevPage: page > 1,
-        nextPage: page + 1,
-        prevPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+        pagetitle: "shop",
+        path: "/",
+        isAuthenticated:req.session.isLoggedin,
       });
     })
     .catch((err) => {

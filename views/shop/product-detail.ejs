@@ -1,11 +1,12 @@
 <%- include('../includes/head.ejs')%>
+    <link rel="stylesheet" href="/css/product.css" />
     </head>
     <%- include('../includes/navigation.ejs')%>
     <main class="centered">
         <h1><%=product.title%></h1>
         <hr>
         <div>
-            <img src="/<%=product.imageurl%>" alt="<%=product.description%>">
+            <img class="image" src="<%=product.imageurl%>" alt="<%=product.description%>">
         </div>
         <h2><%=product.price%></h2>
         <p><%=product.description%></p>

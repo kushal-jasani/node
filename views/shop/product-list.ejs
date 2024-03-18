@@ -13,13 +13,13 @@
             <h1 class="product__title"><%=product.title%></h1>
           </header>
           <div class="card__image">
-            <img
-              src="<%=product.imageurl%>"
+            <img class="image"
+              src="/<%=product.imageurl%>"
               alt="<%=product.title%>" >
           </img>
           </div>
           <div class="card__content">
-            <h2 class="product__price">$ <%=product.price%></h2>
+            <h2 class="product__price">$<%=product.price%></h2>
             <p class="product__description">
               <%=product.description%>
             </p>

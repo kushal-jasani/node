@@ -8,10 +8,9 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const product = require("../models/product");
 const session = require("express-session");
-const stripe = require("stripe")(
-  "secretkey"
-);
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
+console.log(process.env.STRIPE_KEY);
 const ITEMS_PER_PAGE = 2;
 exports.getProducts = (req, res, next) => {
   //   console.log(adminData.products);
@@ -32,7 +31,13 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pagetitle: "shop",
         path: "/",
-        isAuthenticated:req.session.isLoggedin,
+        isAuthenticated: req.session.isLoggedin,
+        currPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPrevPage: page > 1,
+        nextPage: page + 1,
+        prevPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
       });
     })
     .catch((err) => {
@@ -211,7 +216,7 @@ exports.getCheckOut = (req, res, next) => {
             quantity: p.quantity,
           };
         }),
-        mode:'payment',
+        mode: "payment",
         success_url:
           req.protocol + "://" + req.get("host") + "/checkout/success",
         cancel_url: req.protocol + "://" + req.get("host") + "/checkout/cancel",

@@ -28,8 +28,8 @@ const store = new MongoDBStore({
 });
 
 const csrfprotection = csrf();
-const privetKey = fs.readFileSync("server.key");
-const certificate = fs.readFileSync("server.cert");
+// const privetKey = fs.readFileSync("server.key");
+// const certificate = fs.readFileSync("server.cert");
 const errorController = require("./controller/error");
 const User = require("./models/user");
 

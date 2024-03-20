@@ -68,13 +68,6 @@ main {
   color: yellow;
 }
 
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: stretch;
-}
-
 .card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }
@@ -223,6 +216,13 @@ main {
   display: none;
 }
 
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: stretch;
+}
+
 .pagination {
   margin-top: 2rem;
   text-align: center;
@@ -245,7 +245,7 @@ main {
 }
 
 @media (min-width: 768px) {
-  .main-header__nav {
+  .headnav {
     display: flex;
   }
 

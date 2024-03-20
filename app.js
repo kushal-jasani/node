@@ -137,9 +137,9 @@ app.use(errorController.getNotFound);
 mongoose
   .connect(MONGODBURI)
   .then((result) => {
-    https
-      .createServer({ key: privetKey ,cert:certificate}, app)
-      .listen(process.env.PORT || 3000);
-    // app.listen(process.env.PORT || 3000);
+    // https
+    //   .createServer({ key: privetKey ,cert:certificate}, app)
+    //   .listen(process.env.PORT || 3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => console.log(err));

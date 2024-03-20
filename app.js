@@ -9,7 +9,6 @@ const fs = require("fs");
 const bodyparser = require("body-parser");
 require("dotenv").config();
 
-console.log(process.env);
 
 const MongoDBStore = require("connect-mongodb-session")(session);
 

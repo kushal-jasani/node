@@ -2,6 +2,15 @@
 <link rel="stylesheet" href="/css/cart.css">
 </head>
 <body>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        function redirectToCheckout() {
+            var stripe = Stripe('pk_test_51Ot1cCSCHK44EDHwd48KVHRzzhud57MHdgGOkV1SVsNVvyygtSsciEnfgb0abJ3omQtDkvAYi6CfBwQPkGvix2aQ00iVRpVFUQ');
+            stripe.redirectToCheckout({
+                sessionId: '<%=sessionId%>'
+            });
+        }
+    </script>
     <%- include('../includes/navigation.ejs')%>
     <main>
         <ul class="cart__item-list">
@@ -16,17 +25,9 @@
             <h2>Total:<%=totalSum%></h2>
         </div>
         <div class="centered">
-            <button id="order-btn" class="btn">ORDER</button>
-            <script src="https://js.stripe.com/v3/"></script>
-            <script>
-                var stripe=Stripe('pk_test_51Ot1cCSCHK44EDHwd48KVHRzzhud57MHdgGOkV1SVsNVvyygtSsciEnfgb0abJ3omQtDkvAYi6CfBwQPkGvix2aQ00iVRpVFUQ')
-                var orderbtn=document.getElementById('order-btn');
-                orderbtn.addEventListener('click',function(){
-                    stripe.redirectToCheckout({
-                        sessionId:'<%=sessionId%>'
-                    })
-                })
-            </script>
+            <div class="centered">
+                <button id="order-btn" class="btn" onclick="redirectToCheckout()">ORDER</button>
+            </div>
         </div>
     </main>
 <%-include('../includes/end.ejs')%>

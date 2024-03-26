@@ -223,6 +223,7 @@ exports.getCheckOut = (req, res, next) => {
       });
     })
     .then((session) => {
+      res.set('Content-Security-Policy', "script-src 'unsafe-inline' https://js.stripe.com;")
       res.render("shop/checkout", {
         path: "/checkout",
         pagetitle: "Checkout",
